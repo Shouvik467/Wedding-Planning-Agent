@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Planning Agent</title>
+    
+    <style>
+        /* ================================
+           CSS STYLES
+        ================================ */
+        :root {
+            --primary: #ff4d88;
+            --secondary: #ffe6f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fff0f5;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        nav {
+            background: var(--primary);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav button {
+            margin: 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: white;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        nav button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            background: white;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 40px;
+            border-radius: 15px;
+            display: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .container p {
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .category {
+            background: var(--secondary);
+            padding: 18px;
+            margin: 12px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+            border-left: 5px solid var(--primary);
+        }
+
+        .category:hover {
+            transform: translateX(10px);
+            background: #ffd4e5;
+            box-shadow: 0 3px 10px rgba(255, 77, 136, 0.3);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            margin-top: 15px;
+            padding: 15px;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 15px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button.action {
+            background: var(--primary);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        button.action:hover {
+            background: #e63d75;
+            transform: scale(1.05);
+        }
+
+        button.action:active {
+            transform: scale(0.98);
+        }
+
+        /* PDF Download Button */
+        button.download-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            margin-left: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: none;
+        }
+
+        button.download-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        button.download-btn.show {
+            display: inline-block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        #aiReply {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+            line-height: 1.8;
+            min-height: 60px;
+        }
+
+        #aiReply p {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        #aiReply h1, #aiReply h2, #aiReply h3 {
+            color: var(--primary);
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        #aiReply strong {
+            color: #333;
+        }
+
+        #aiReply ul, #aiReply ol {
+            margin-left: 20px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Dark Mode Styles */
+        body.dark {
+            background: #121212;
+            color: white;
+        }
+
+        body.dark nav {
+            background: #1f1f1f;
+        }
+
+        body.dark .container {
+            background: #1e1e1e;
+            color: white;
+        }
+
+        body.dark .container p {
+            color: #ccc;
+        }
+
+        body.dark .category {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        body.dark .category:hover {
+            background: #333;
+        }
+
+        body.dark textarea {
+            background: #2a2a2a;
+            color: white;
+            border-color: #444;
+        }
+
+        body.dark #aiReply {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        body.dark #aiReply p {
+            color: #ddd;
+        }
+
+        body.dark #aiReply h1,
+        body.dark #aiReply h2,
+        body.dark #aiReply h3 {
+            color: #ff4d88;
+        }
+
+        body.dark #aiReply strong {
+            color: #fff;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 77, 136, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error/Warning Styles */
+        .error {
+            color: #d32f2f !important;
+        }
+
+        .warning {
+            color: #f57c00 !important;
+        }
+
+        .success {
+            color: #388e3c !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button.action,
+            button.download-btn {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ================================
+         NAVIGATION BAR
+    ================================ -->
+    <nav>
+        <button onclick="showPage('home')">Home</button>
+        <button onclick="showPage('categories')">Categories</button>
+        <button onclick="showPage('ai')">🤖 AI Planner</button>
+        <button onclick="toggleDarkMode()">🌙</button>
+    </nav>
+
+    <!-- ================================
+         HOME PAGE
+    ================================ -->
+    <div id="home" class="container active">
+        <h2>💍 Wedding Planning Agent</h2>
+        <p>Welcome to your AI-powered wedding planner!</p>
+        <p>This intelligent assistant uses Google's Gemini AI to help you plan every aspect of your perfect wedding.</p>
+        <p><strong>Features:</strong></p>
+        <ul>
+            <li>✨ Pre-designed wedding category templates</li>
+            <li>💬 Ask any wedding-related questions</li>
+            <li>📄 Download AI responses as PDF</li>
+            <li>🎨 Beautiful dark mode support</li>
+            <li>🤖 Powered by advanced AI technology</li>
+        </ul>
+        <p style="margin-top: 20px;">Get started by exploring our categories or asking the AI planner directly!</p>
+    </div>
+
+    <!-- ================================
+         CATEGORIES PAGE
+    ================================ -->
+    <div id="categories" class="container">
+        <h2>🎎 Wedding Categories</h2>
+        <p>Choose a wedding category to get started with planning:</p>
+
+        <div class="category" onclick="sendCategory('Bengali wedding checklist and rituals')">
+            🪔 Bengali Wedding
+        </div>
+
+        <div class="category" onclick="sendCategory('Muslim wedding planning checklist')">
+            🕌 Muslim Wedding
+        </div>
+
+        <div class="category" onclick="sendCategory('Christian wedding planning steps')">
+            ✝️ Christian Wedding
+        </div>
+
+        <div class="category" onclick="sendCategory('Destination wedding planning tips')">
+            🌍 Destination Wedding
+        </div>
+
+        <div class="category" onclick="sendCategory('Budget-friendly wedding planning ideas')">
+            💰 Budget Wedding
+        </div>
+
+        <div class="category" onclick="sendCategory('Luxury wedding planning and decoration ideas')">
+            👑 Luxury Wedding
+        </div>
+    </div>
+
+    <!-- ================================
+         AI PLANNER PAGE
+    ================================ -->
+    <div id="ai" class="container">
+        <h2>🤖 AI Wedding Planner</h2>
+        <p>Ask me anything about wedding planning!</p>
+        
+        <textarea 
+            id="userQuestion" 
+            placeholder="Example: How to plan a wedding in 6 months? What's a good budget for 200 guests?">
+        </textarea>
+        
+        <div class="button-group">
+            <button class="action" onclick="askAI()">Ask AI</button>
+            <button class="download-btn" id="downloadBtn" onclick="downloadPDF()">
+                📄 Download PDF
+            </button>
+        </div>
+        
+        <div id="aiReply">
+            <p>💭 Waiting for your question...</p>
+        </div>
+    </div>
+
+    <!-- ================================
+         LOAD API CONFIGURATION
+    ================================ -->
+    <script src="config.js"></script>
+
+    <!-- ================================
+         LOAD JSPDF LIBRARY FOR PDF GENERATION
+    ================================ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- ================================
+         JAVASCRIPT CODE
+    ================================ -->
+    <script>
+        // Store the last AI response for PDF generation
+        let lastAIResponse = {
+            question: '',
+            answer: ''
+        };
+
+        // ========================================
+        // PAGE NAVIGATION
+        // ========================================
+        function showPage(pageId) {
+            // Hide all containers
+            document.querySelectorAll('.container').forEach(container => {
+                container.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // ========================================
+        // DARK MODE TOGGLE
+        // ========================================
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            
+            // Save preference to localStorage
+            const isDark = document.body.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
+        }
+
+        // Load dark mode preference on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                document.body.classList.add('dark');
+            }
+        });
+
+        // ========================================
+        // CATEGORY SELECTION
+        // ========================================
+        function sendCategory(categoryText) {
+            // Switch to AI page
+            showPage('ai');
+            
+            // Fill the question box with category text
+            document.getElementById('userQuestion').value = categoryText;
+            
+            // Automatically trigger AI response
+            askAI();
+        }
+
+        // ========================================
+        // AI QUESTION HANDLER
+        // ========================================
+        async function askAI() {
+            const questionInput = document.getElementById('userQuestion');
+            const replyDiv = document.getElementById('aiReply');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const question = questionInput.value.trim();
+
+            // Hide download button initially
+            downloadBtn.classList.remove('show');
+
+            // Validate input
+            if (!question) {
+                replyDiv.innerHTML = '<p class="warning">⚠️ Please ask something!</p>';
+                return;
+            }
+
+            // Check if API key is configured
+            if (!window.GEMINI_API_KEY || window.GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
+                replyDiv.innerHTML = '<p class="error">❌ API Key not configured! Please add your Gemini API key in config.js file.</p>';
+                return;
+            }
+
+            // Show loading state
+            replyDiv.innerHTML = '<p><span class="loading"></span> Thinking...</p>';
+
+            // Construct API URL
+            const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${window.GEMINI_API_KEY}`;
+
+            try {
+                // Call Gemini API
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `You are an expert AI wedding planner assistant. Answer the following question in a helpful, friendly, and detailed manner:\n\n${question}`
+                            }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+
+                // Handle errors
+                if (!response.ok) {
+                    const errorMsg = data.error?.message || 'API request failed';
+                    throw new Error(errorMsg);
+                }
+
+                // Check if response has valid data
+                if (!data.candidates || !data.candidates[0]) {
+                    replyDiv.innerHTML = '<p class="error">❌ No response from AI. Please try again.</p>';
+                    return;
+                }
+
+                // Extract and display AI response
+                const aiText = data.candidates[0].content.parts[0].text;
+                replyDiv.innerHTML = formatResponse(aiText);
+
+                // Store response for PDF generation
+                lastAIResponse = {
+                    question: question,
+                    answer: aiText
+                };
+
+                // Show download button
+                downloadBtn.classList.add('show');
+
+            } catch (error) {
+                console.error('Error:', error);
+                
+                // Display user-friendly error message
+                if (error.message.includes('API_KEY_INVALID') || error.message.includes('API key')) {
+                    replyDiv.innerHTML = '<p class="error">❌ Invalid API key. Please check your configuration in config.js</p>';
+                } else if (error.message.includes('quota') || error.message.includes('RESOURCE_EXHAUSTED')) {
+                    replyDiv.innerHTML = '<p class="error">❌ API quota exceeded. Please try again later or check your Google Cloud billing.</p>';
+                } else if (error.message.includes('Failed to fetch')) {
+                    replyDiv.innerHTML = '<p class="error">❌ Network error. Please check your internet connection.</p>';
+                } else {
+                    replyDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+                }
+            }
+        }
+
+        // ========================================
+        // FORMAT RESPONSE
+        // ========================================
+        function formatResponse(text) {
+            // Convert markdown-style formatting to HTML
+            let formatted = text
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                // removed – avoids bullet corruption
+                .replace(/###\s(.*?)(<br>|$)/g, '<h3>$1</h3>') // H3 headings
+                .replace(/##\s(.*?)(<br>|$)/g, '<h2>$1</h2>') // H2 headings
+                .replace(/#\s(.*?)(<br>|$)/g, '<h1>$1</h1>'); // H1 headings
+
+            return `<p>${formatted}</p>`;
+        }
+
+// ========================================
+// PDF DOWNLOAD FUNCTION (FIXED FOR ALL CHARACTERS)
+// ========================================
+function downloadPDF() {
+    if (!lastAIResponse.answer) {
+        alert('No content to download. Please ask a question first!');
+        return;
+    }
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 20;
+        const maxWidth = pageWidth - (margin * 2);
+        let yPosition = margin;
+
+        // Add header
+        doc.setFillColor(255, 77, 136);
+        doc.rect(0, 0, pageWidth, 30, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Wedding Planning Report', pageWidth / 2, 20, { align: 'center' });
+
+        doc.setTextColor(0, 0, 0);
+        yPosition = 45;
+
+        // Helper function to check if we need a new page
+        function checkNewPage(requiredSpace) {
+            if (yPosition + requiredSpace > pageHeight - 30) {
+                doc.addPage();
+                yPosition = margin;
+                return true;
+            }
+            return false;
+        }
+
+        // Helper function to add text with proper encoding
+        function addText(text, fontSize, isBold = false) {
+            doc.setFontSize(fontSize);
+            doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+            
+            // Clean text of special characters that cause encoding issues
+            const cleanedText = text
+                .replace(/[\u2018\u2019]/g, "'") // Smart quotes to regular quotes
+                .replace(/[\u201C\u201D]/g, '"') // Smart double quotes
+                .replace(/\u2013/g, '-') // En dash
+                .replace(/\u2014/g, '--') // Em dash
+                .replace(/\u2026/g, '...') // Ellipsis
+                .replace(/[^\x00-\x7F]/g, ''); // Remove other non-ASCII characters
+            
+            const lines = doc.splitTextToSize(cleanedText, maxWidth);
+            
+            checkNewPage(lines.length * (fontSize * 0.5));
+            doc.text(lines, margin, yPosition);
+            yPosition += (lines.length * (fontSize * 0.4)) + 3;
+        }
+
+        // Add question
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Question:', margin, yPosition);
+        yPosition += 8;
+        addText(lastAIResponse.question, 11, false);
+        yPosition += 5;
+
+        // Add answer header
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('AI Response:', margin, yPosition);
+        yPosition += 8;
+
+        // Process answer text - remove markdown and HTML
+        let cleanAnswer = lastAIResponse.answer
+            .replace(/<[^>]*>/g, '') // Remove HTML tags
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markers
+            .replace(/\*(.*?)\*/g, '$1') // Remove italic markers
+            .replace(/#{1,3}\s/g, '') // Remove heading markers
+            .replace(/<br\s*\/?>/gi, '\n') // Convert <br> to newlines
+            .trim();
+
+        // Split into paragraphs and process
+        const paragraphs = cleanAnswer.split(/\n{2,}/);
+
+        paragraphs.forEach((paragraph, index) => {
+            if (paragraph.trim()) {
+                // Check if it's a heading (shorter lines, often at start)
+                const isHeading = paragraph.length < 60 && index === 0;
+                
+                if (isHeading) {
+                    checkNewPage(10);
+                    doc.setFontSize(12);
+                    doc.setFont('helvetica', 'bold');
+                    yPosition += 3;
+                } else {
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                }
+
+                addText(paragraph, isHeading ? 12 : 10, isHeading);
+                yPosition += 2;
+            }
+        });
+
+        // Add footer
+        const totalPages = doc.internal.pages.length - 1;
+        for (let i = 1; i <= totalPages; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(128, 128, 128);
+            doc.setFont('helvetica', 'normal');
+            doc.text(
+                'Generated by Wedding Planning Agent | Page ' + i + ' of ' + totalPages,
+                pageWidth / 2,
+                pageHeight - 10,
+                { align: 'center' }
+            );
+        }
+
+        // Generate filename
+        const timestamp = new Date().toISOString().split('T')[0];
+        const filename = 'Wedding_Planning_' + timestamp + '.pdf';
+
+        doc.save(filename);
+
+        // Success message
+        const replyDiv = document.getElementById('aiReply');
+        const originalContent = replyDiv.innerHTML;
+        replyDiv.innerHTML = '<p class="success">✅ PDF downloaded successfully!</p>' + originalContent;
+        
+        setTimeout(() => {
+            replyDiv.innerHTML = originalContent;
+        }, 3000);
+
+    } catch (error) {
+        console.error('PDF Generation Error:', error);
+        alert('Error generating PDF: ' + error.message);
+    }
+}
+        // ========================================
+        // KEYBOARD SHORTCUTS
+        // ========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('userQuestion');
+            
+            if (textarea) {
+                textarea.addEventListener('keypress', (e) => {
+                    // Ctrl+Enter or Cmd+Enter to submit
+                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                        e.preventDefault();
+                        askAI();
+                    }
+                });
+            }
+        });
+
+        // ========================================
+        // WELCOME MESSAGE
+        // ========================================
+        console.log('%c💍 Wedding Planning Agent', 'color: #ff4d88; font-size: 20px; font-weight: bold;');
+        console.log('%cPowered by Google Gemini AI', 'color: #888; font-size: 12px;');
+        console.log('%c📄 PDF Download Feature Enabled', 'color: #4CAF50; font-size: 12px;');
+    </script>
+</body>
+</html>
